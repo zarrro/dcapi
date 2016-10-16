@@ -1,3 +1,10 @@
-clinic\dermal\survey\AnamnesisTemplate.class
+clinic\dermal\survey\AuthenticationController.class
+clinic\dermal\survey\model\AnamnesisTemplateEntry.class
+clinic\dermal\survey\model\AnamnesisTemplateRepository.class
+clinic\dermal\survey\SecurityConfiguration.class
+clinic\dermal\survey\model\AnamnesisEntry.class
+clinic\dermal\survey\model\AnamnesisRepository.class
+clinic\dermal\survey\model\Anamnesis.class
 clinic\dermal\survey\App.class
-clinic\dermal\survey\Anamnesis.class
+clinic\dermal\survey\model\AnamnesisTemplateEntry$AnswerType.class
+clinic\dermal\survey\model\AnamnesisTemplate.class

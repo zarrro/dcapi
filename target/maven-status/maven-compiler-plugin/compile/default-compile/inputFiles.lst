@@ -1,5 +1,9 @@
-C:\Users\peevs\workspace\clinic.dermal\src\main\java\clinic\dermal\survey\AnamnesisTemplate.java
-C:\Users\peevs\workspace\clinic.dermal\src\main\java\clinic\dermal\survey\App.java
-C:\Users\peevs\workspace\clinic.dermal\src\main\java\clinic\dermal\survey\AuthenticationController.java
-C:\Users\peevs\workspace\clinic.dermal\src\main\java\clinic\dermal\survey\SecurityConfiguration.java
-C:\Users\peevs\workspace\clinic.dermal\src\main\java\clinic\dermal\survey\Anamnesis.java
+c:\dev\dc\dcapi\src\main\java\clinic\dermal\survey\model\AnamnesisRepository.java
+c:\dev\dc\dcapi\src\main\java\clinic\dermal\survey\model\Anamnesis.java
+c:\dev\dc\dcapi\src\main\java\clinic\dermal\survey\SecurityConfiguration.java
+c:\dev\dc\dcapi\src\main\java\clinic\dermal\survey\App.java
+c:\dev\dc\dcapi\src\main\java\clinic\dermal\survey\model\AnamnesisTemplateRepository.java
+c:\dev\dc\dcapi\src\main\java\clinic\dermal\survey\model\AnamnesisTemplateEntry.java
+c:\dev\dc\dcapi\src\main\java\clinic\dermal\survey\AuthenticationController.java
+c:\dev\dc\dcapi\src\main\java\clinic\dermal\survey\model\AnamnesisTemplate.java
+c:\dev\dc\dcapi\src\main\java\clinic\dermal\survey\model\AnamnesisEntry.java
