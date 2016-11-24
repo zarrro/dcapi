@@ -15,20 +15,24 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import clinic.dermal.logic.StorageService;
 import clinic.dermal.model.StorageFileNotFoundException;
+import clinic.dermal.model.Survey;
 
 @RestController
-public class FileUploadController {
+public class AnamnesisController {
 
 	private final StorageService storageService;
 
 	@Autowired
-	public FileUploadController(StorageService storageService) {
+	public AnamnesisController(StorageService storageService) {
 
 		this.storageService = storageService;
 	}
@@ -38,7 +42,7 @@ public class FileUploadController {
 
 		return storageService.loadAll()
 				.map(path -> MvcUriComponentsBuilder
-						.fromMethodName(FileUploadController.class, "serveFile", path.getFileName().toString()).build()
+						.fromMethodName(AnamnesisController.class, "serveFile", path.getFileName().toString()).build()
 						.toString())
 				.collect(Collectors.toList());
 	}
@@ -53,11 +57,22 @@ public class FileUploadController {
 	}
 
 	@PostMapping("/anamnesis")
-	@CrossOrigin(origins = "http://localhost:5555", maxAge = 3600, allowCredentials="true")
-	public String handleFormSubmit(@RequestParam("file") MultipartFile file) {
-		storageService.store(file);
-		
-		// dummy UUID for now; it will be the UUID of the created issue 
+	@CrossOrigin(origins = "http://localhost:5555", maxAge = 3600, allowCredentials = "true")
+	public String handleFormSubmit(@RequestPart("image1") MultipartFile image1,
+			@RequestPart("image2") MultipartFile image2, @RequestParam("survey") String surveyJson) {
+
+		System.out.println("######" + surveyJson);
+		storageService.store(image1);
+		storageService.store(image2);
+
+		try {
+			Survey s = new ObjectMapper().readValue(surveyJson, Survey.class);
+			System.out.println("<<<< success >>>> " + s.toString());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		// dummy UUID for now; it will be the UUID of the created issue
 		return UUID.randomUUID().toString();
 	}
 
@@ -65,5 +80,4 @@ public class FileUploadController {
 	public ResponseEntity handleStorageFileNotFound(StorageFileNotFoundException exc) {
 		return ResponseEntity.notFound().build();
 	}
-
 }
