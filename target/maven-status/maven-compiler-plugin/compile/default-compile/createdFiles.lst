@@ -1,13 +1,1 @@
-clinic\dermal\configuration\SecurityConfiguration.class
-clinic\dermal\model\Anamnesis.class
-clinic\dermal\model\StorageFileNotFoundException.class
-clinic\dermal\logic\StorageService.class
-clinic\dermal\api\FileUploadController.class
-clinic\dermal\App.class
-clinic\dermal\configuration\StorageProperties.class
-clinic\dermal\model\AnamnesisEntry.class
-clinic\dermal\logic\FileSystemStorageService.class
-clinic\dermal\api\AuthenticationController.class
-clinic\dermal\model\AnamnesisRepository.class
-clinic\dermal\model\StorageException.class
-clinic\dermal\configuration\CustomizedRestMvcConfiguration.class
+clinic/dermal/configuration/SecurityConfiguration.class

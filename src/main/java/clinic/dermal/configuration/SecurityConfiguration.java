@@ -42,12 +42,12 @@ class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		http.cors().and().authorizeRequests().anyRequest().authenticated().and().httpBasic()
+		http.cors()
 //		.and().csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
 		.and().csrf().disable();
 		// disable redirect after logout
-		http.logout().permitAll();
-		http.logout().logoutSuccessHandler((new HttpStatusReturningLogoutSuccessHandler(HttpStatus.OK)));
+//		http.logout().permitAll();
+//		http.logout().logoutSuccessHandler((new HttpStatusReturningLogoutSuccessHandler(HttpStatus.OK)));
 	}
 
 	@Override

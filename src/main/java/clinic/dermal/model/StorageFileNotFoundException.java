@@ -2,7 +2,12 @@ package clinic.dermal.model;
 
 public class StorageFileNotFoundException extends StorageException {
 
-    public StorageFileNotFoundException(String message) {
+    /**
+	 * default initialization
+	 */
+	private static final long serialVersionUID = 1L;
+
+	public StorageFileNotFoundException(String message) {
         super(message);
     }
 
