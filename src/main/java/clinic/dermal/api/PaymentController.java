@@ -25,9 +25,12 @@ import com.paypal.api.payments.Transaction;
 import clinic.dermal.model.payment.BearerToken;
 import clinic.dermal.model.payment.CheckoutOnAuthorizeData;
 import clinic.dermal.model.payment.CreatePaymentResult;
+import clinic.dermal.model.payment.PaymentExecution;
 
 @RestController
 public class PaymentController {
+
+	private String _accessToken;
 
 	@Bean
 	public RestTemplate restTemplate(RestTemplateBuilder builder) {
@@ -56,7 +59,7 @@ public class PaymentController {
 
 	@PostMapping("/payment")
 	public ResponseEntity<CreatePaymentResult> createPayment(RestTemplate restTemplate) {
-		String accessToken = getAccessToken(restTemplate);
+		_accessToken = getAccessToken(restTemplate);
 
 		Payment paymentRequest = new Payment();
 		paymentRequest.setIntent("sale");
@@ -93,7 +96,7 @@ public class PaymentController {
 
 		HttpHeaders headers = new HttpHeaders();
 		headers.set("Content-Type", "application/json");
-		headers.set("Authorization", "Bearer " + accessToken);
+		headers.set("Authorization", "Bearer " + _accessToken);
 
 		HttpEntity<String> requestEntity = new HttpEntity<String>(paymentRequest.toJSON(), headers);
 
@@ -109,10 +112,30 @@ public class PaymentController {
 	}
 
 	@PostMapping("/payment-execute")
-	public ResponseEntity<String> executePayment(RestTemplate restTemplate, String paymentID, String payerID) {
-		
+	public ResponseEntity<Payment> executePayment(RestTemplate restTemplate, String paymentID, String payerID) {
+
+		if (payerID == null || payerID.isEmpty())
+			throw new IllegalArgumentException("payerID");
+		if (paymentID == null || paymentID.isEmpty())
+			throw new IllegalArgumentException("paymentID");
+
 		System.out.println("------ executePayment - data: " + paymentID + ", payerID: " + payerID);
 
-		return null;
+		HttpHeaders headers = new HttpHeaders();
+		headers.set("Content-Type", "application/json");
+		headers.set("Authorization", "Bearer " + _accessToken);
+
+		PaymentExecution pe = new PaymentExecution();
+		pe.setPayer_id(payerID);
+
+		HttpEntity<PaymentExecution> requestEntity = new HttpEntity<PaymentExecution>(pe, headers);
+
+		Payment paymentResult = restTemplate.postForObject(
+				"https://api.sandbox.paypal.com/v1/payments/payment/" + paymentID + "/execute/", requestEntity,
+				Payment.class);
+
+		System.out.println("------ Payment execution result: " + paymentResult.toJSON());
+
+		return new ResponseEntity<Payment>(paymentResult, HttpStatus.CREATED);
 	}
 }
