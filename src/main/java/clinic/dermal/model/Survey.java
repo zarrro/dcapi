@@ -1,17 +1,29 @@
 package clinic.dermal.model;
 
+import org.springframework.data.annotation.Id;
+
 public class Survey {
-	String itchy;
-	String hurts;
-	String description;
-	String duration;
-	String coldfeel;
-	String hotfeel;
-	String history;
-	String sex;
-	String age;
-	String previousTreatment;
-	String previousDiagnose;
+
+	@Id
+	private String id;
+	private String itchy;
+	private String hurts;
+	private String hotfeel;
+	private String coldfeel;
+	private String duration;
+	private String description;
+	private String sex;
+	private String age;
+	private String email;
+	private String confirmEmail;
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
 
 	public String getItchy() {
 		return itchy;
@@ -53,14 +65,6 @@ public class Survey {
 		this.coldfeel = coldfeel;
 	}
 
-	public String getHistory() {
-		return history;
-	}
-
-	public void setHistory(String history) {
-		this.history = history;
-	}
-
 	public String getSex() {
 		return sex;
 	}
@@ -77,35 +81,34 @@ public class Survey {
 		this.age = age;
 	}
 
-	public String getPreviousTreatment() {
-		return previousTreatment;
-	}
-
-	public void setPreviousTreatment(String previousTreatment) {
-		this.previousTreatment = previousTreatment;
-	}
-
-	public String getPreviousDiagnose() {
-		return previousDiagnose;
-	}
-
-	public void setPreviousDiagnose(String previousDiagnose) {
-		this.previousDiagnose = previousDiagnose;
-	}
-
-	@Override
-	public String toString() {
-		return "Survey [itchy=" + itchy + ", hurts=" + hurts + ", description=" + description + ", duration="
-				+ duration + ", coldfeel=" + coldfeel + ", hotfeel=" + hotfeel + ", history=" + history + ", sex="
-				+ sex + ", age=" + age + ", previousTreatment=" + previousTreatment + ", previousDiagnose="
-				+ previousDiagnose + "]";
-	}
-
 	public String getHotfeel() {
 		return hotfeel;
 	}
 
 	public void setHotfeel(String hotfeel) {
 		this.hotfeel = hotfeel;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	public String getConfirmEmail() {
+		return confirmEmail;
+	}
+
+	public void setConfirmEmail(String confirmEmail) {
+		this.confirmEmail = confirmEmail;
+	}
+
+	@Override
+	public String toString() {
+		return "Survey [id=" + id + ", itchy=" + itchy + ", hurts=" + hurts + ", hotfeel=" + hotfeel + ", coldfeel="
+				+ coldfeel + ", duration=" + duration + ", description=" + description + ", sex=" + sex + ", age=" + age
+				+ ", email=" + email + ", confirmEmail=" + confirmEmail + "]";
 	}
 }

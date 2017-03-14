@@ -10,7 +10,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
@@ -23,7 +22,6 @@ import com.paypal.api.payments.RedirectUrls;
 import com.paypal.api.payments.Transaction;
 
 import clinic.dermal.model.payment.BearerToken;
-import clinic.dermal.model.payment.CheckoutOnAuthorizeData;
 import clinic.dermal.model.payment.CreatePaymentResult;
 import clinic.dermal.model.payment.PaymentExecution;
 

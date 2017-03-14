@@ -7,9 +7,10 @@
 /home/zaro/dcapi/src/main/java/clinic/dermal/configuration/StorageProperties.java
 /home/zaro/dcapi/src/main/java/clinic/dermal/api/PaymentController.java
 /home/zaro/dcapi/src/main/java/clinic/dermal/logic/FileSystemStorageService.java
-/home/zaro/dcapi/src/main/java/clinic/dermal/configuration/CustomizedRestMvcConfiguration.java
 /home/zaro/dcapi/src/main/java/clinic/dermal/model/payment/BearerToken.java
 /home/zaro/dcapi/src/main/java/clinic/dermal/App.java
+/home/zaro/dcapi/src/main/java/clinic/dermal/model/payment/PaymentExecution.java
 /home/zaro/dcapi/src/main/java/clinic/dermal/model/StorageException.java
+/home/zaro/dcapi/src/main/java/clinic/dermal/logic/SurveyRepository.java
 /home/zaro/dcapi/src/main/java/clinic/dermal/logic/StorageService.java
 /home/zaro/dcapi/src/main/java/clinic/dermal/model/StorageFileNotFoundException.java

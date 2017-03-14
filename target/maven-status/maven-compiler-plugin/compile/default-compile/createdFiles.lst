@@ -1,1 +1,16 @@
+clinic/dermal/logic/SurveyRepository.class
+clinic/dermal/model/payment/BearerToken.class
 clinic/dermal/configuration/SecurityConfiguration.class
+clinic/dermal/logic/FileSystemStorageService.class
+clinic/dermal/model/payment/PaymentExecution.class
+clinic/dermal/model/StorageException.class
+clinic/dermal/configuration/StorageProperties.class
+clinic/dermal/model/Survey.class
+clinic/dermal/App.class
+clinic/dermal/model/payment/CheckoutOnAuthorizeData.class
+clinic/dermal/api/AuthenticationController.class
+clinic/dermal/api/AnamnesisController.class
+clinic/dermal/model/StorageFileNotFoundException.class
+clinic/dermal/logic/StorageService.class
+clinic/dermal/api/PaymentController.class
+clinic/dermal/model/payment/CreatePaymentResult.class
