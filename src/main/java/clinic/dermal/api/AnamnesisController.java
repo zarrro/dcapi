@@ -2,7 +2,6 @@ package clinic.dermal.api;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,21 +22,18 @@ import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBui
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import clinic.dermal.logic.StorageService;
-import clinic.dermal.logic.SurveyRepository;
+import clinic.dermal.model.Case;
 import clinic.dermal.model.StorageFileNotFoundException;
 import clinic.dermal.model.Survey;
+import clinic.dermal.persistence.CaseRepository;
 
 @RestController
 public class AnamnesisController {
 
-	private final StorageService storageService;	
-	private final SurveyRepository surveyRepo;
-	
 	@Autowired
-	public AnamnesisController(StorageService storageService, SurveyRepository surveyRepo) {
-		this.storageService = storageService;
-		this.surveyRepo = surveyRepo;
-	}
+	private StorageService storageService;
+	@Autowired
+	private CaseRepository caseRepo;
 
 	@GetMapping("/anamnesis")
 	public List<String> listUploadedFiles() throws IOException {
@@ -60,26 +56,35 @@ public class AnamnesisController {
 
 	@PostMapping("/anamnesis")
 	@CrossOrigin(origins = "http://localhost:5555", maxAge = 3600, allowCredentials = "true")
-	public String handleFormSubmit(@RequestPart("image1") MultipartFile image1,
-			@RequestPart("image2") MultipartFile image2, @RequestParam("survey") String surveyJson) {
+	public String handleFormSubmit(@RequestPart("paymentId") String paymentId,
+			@RequestPart("image1") MultipartFile image1, @RequestPart("image2") MultipartFile image2,
+			@RequestParam("survey") String surveyJson) {
 
-		final String caseId = UUID.randomUUID().toString();
-
-		System.out.println("######" + surveyJson);
-		storageService.store(image1, caseId, "img1_" + image1.getOriginalFilename());
-		storageService.store(image2, caseId, "img2_" + image2.getOriginalFilename());
-
+		if (paymentId == null || paymentId.isEmpty()) {
+			throw new IllegalArgumentException("paymentId is empty");
+		}
+		Case c = this.caseRepo.findByPaymentId(paymentId);
+		if (c == null) {
+			throw new IllegalArgumentException("paymentId " + paymentId + " doesn't exists");
+		}
+		if (!c.getState().equals(Case.State.PAYMENT_AUTHORIZED)) {
+			throw new IllegalStateException("Case state " + c.getState());
+		}
+		
 		try {
+			System.out.println("######" + surveyJson);
+			storageService.store(image1, c.getId(), "img1_" + image1.getOriginalFilename());
+			storageService.store(image2, c.getId(), "img2_" + image2.getOriginalFilename());		
 			Survey s = new ObjectMapper().readValue(surveyJson, Survey.class);
-			s.setId(caseId);
-			System.out.println("<<<< success >>>> " + s.toString());
-			this.surveyRepo.save(s);
+			c.setSurvey(s);
+			c.setState(Case.State.READY_FOR_REVIEW);
 		} catch (IOException e) {
 			e.printStackTrace();
+		} finally {
+			this.caseRepo.save(c);
 		}
 
-		// dummy UUID for now; it will be the UUID of the created issue
-		return caseId;
+		return c.getPaymentId();
 	}
 
 	@ExceptionHandler(StorageFileNotFoundException.class)
