@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -29,6 +31,8 @@ import clinic.dermal.persistence.CaseRepository;
 
 @RestController
 public class AnamnesisController {
+	
+	private static final Logger LOG = LoggerFactory.getLogger(AnamnesisController.class);
 
 	@Autowired
 	private StorageService storageService;
@@ -86,7 +90,7 @@ public class AnamnesisController {
 
 		try {
 			s = new ObjectMapper().readValue(surveyJson, Survey.class);
-			System.out.println("######" + surveyJson);
+			LOG.info(surveyJson);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}

@@ -1,5 +1,7 @@
 package clinic.dermal.api;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -11,6 +13,8 @@ import clinic.dermal.model.PaymentException;
 
 @ControllerAdvice
 public class ExceptionHanlderAdvice {
+	
+	private static final Logger LOG = LoggerFactory.getLogger(ExceptionHanlderAdvice.class);
 
 	@ExceptionHandler(RestClientException.class)
 	public ResponseEntity<String> handleException(RestClientException e) {
@@ -50,8 +54,7 @@ public class ExceptionHanlderAdvice {
 	}
 
 	private static void logException(Exception e) {
-		// TODO: add real logging
-		e.printStackTrace();
+		LOG.error("", e);
 	}
 
 }

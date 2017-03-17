@@ -4,6 +4,8 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
@@ -39,6 +41,8 @@ import clinic.dermal.persistence.Counter;
 @RestController
 public class PaymentController {
 
+	private static final Logger LOG = LoggerFactory.getLogger(PaymentController.class);
+
 	private String _accessToken;
 
 	@Autowired
@@ -51,8 +55,6 @@ public class PaymentController {
 	public RestTemplate restTemplate(RestTemplateBuilder builder) {
 		return builder.build();
 	}
-
-	
 
 	@PostMapping("/payment")
 	public ResponseEntity<CreatePaymentResult> createPayment(RestTemplate restTemplate) {
@@ -73,7 +75,7 @@ public class PaymentController {
 			}
 			newCase.setState(Case.State.PAYMENT_CREATED);
 			newCase.setPaymentId(paymentResult.getId());
-			System.out.println("Create payment response:\n" + paymentResult.toJSON());
+			LOG.info("Create payment response:\n" + paymentResult.toJSON());
 		} finally {
 			this.caseRepo.save(newCase);
 		}
@@ -83,6 +85,7 @@ public class PaymentController {
 
 	@PostMapping("/payment-execute")
 	public ResponseEntity<String> executePayment(RestTemplate restTemplate, String paymentID, String payerID) {
+		LOG.info("executePayment invoked - paymentID: {}, payerID: {}", paymentID, payerID);
 
 		if (payerID == null || payerID.isEmpty())
 			throw new IllegalArgumentException("payerID");
@@ -94,12 +97,10 @@ public class PaymentController {
 		if (c == null) {
 			throw new IllegalArgumentException("PaymentId doesn't exists");
 		}
-		if (!c.getState().equals(Case.State.PAYMENT_CREATED) &&
-			 c.getState().equals(Case.State.AUTHORIZE_PAYMENT_INITIATED)) {
+		if (!c.getState().equals(Case.State.PAYMENT_CREATED)
+				&& c.getState().equals(Case.State.AUTHORIZE_PAYMENT_INITIATED)) {
 			throw new IllegalStateException("PaymentId " + paymentID + " state is " + c.getState());
 		}
-
-		System.out.println("------ executePayment - data: " + paymentID + ", payerID: " + payerID);
 
 		c.setState(Case.State.AUTHORIZE_PAYMENT_INITIATED);
 		String paymentResult = null;
@@ -114,10 +115,11 @@ public class PaymentController {
 			HttpEntity<PaymentExecution> requestEntity = new HttpEntity<PaymentExecution>(pe, headers);
 
 			final String paymentUrl = "https://api.sandbox.paypal.com/v1/payments/payment/" + paymentID + "/execute/";
-			System.out.println("Request:\n" + pe + "URL:\n" + paymentUrl);
-			
+			LOG.info("Request:\n {}\nURL: {}", pe, paymentUrl);
+
 			paymentResult = restTemplate.postForObject(paymentUrl, requestEntity, String.class);
-			//TODO: deserialize the payment result and check if the state is approved
+			// TODO: deserialize the payment result and check if the state is
+			// approved
 			// set the case status accordingly
 			c.setState(Case.State.PAYMENT_AUTHORIZED);
 		} finally {
@@ -151,7 +153,7 @@ public class PaymentController {
 				BearerToken.class);
 
 		final String tokenString = tokenInfo.getAccess_token();
-		System.out.println(">>> Access token aquired: " + tokenString);
+		LOG.info("Aquired access token: " + tokenString);
 		return tokenString;
 	}
 
@@ -165,7 +167,7 @@ public class PaymentController {
 				Counter.class);
 
 		String invoiceId = String.format("%06d", c.getSeq());
-		System.out.println("getNextInvoiceId result:" + c.getSeq());
+		LOG.info("getNextInvoiceId result:" + c.getSeq());
 		return invoiceId;
 	}
 
@@ -211,7 +213,7 @@ public class PaymentController {
 		headers.set("Authorization", "Bearer " + _accessToken);
 		HttpEntity<String> requestEntity = new HttpEntity<String>(payment.toJSON(), headers);
 
-		System.out.println("Create payment request:\n" + payment.toJSON());
+		LOG.info("Create payment request:\n" + payment.toJSON());
 		return requestEntity;
 	}
 
