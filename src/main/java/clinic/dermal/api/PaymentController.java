@@ -52,26 +52,7 @@ public class PaymentController {
 		return builder.build();
 	}
 
-	private static String getAccessToken(RestTemplate restTemplate) {
-		final String creds = "AYJDB6VRfkdCzRTsQcgSOMlLdHpNdHX2shweNLoxbAKvVaJaxigN8PbROYu12cEnibCqP75uv2Scoien:"
-				+ "EBxEViEGiBijbPHLKpkBoHLnYGeAvLuxSydxFTO3T-G6jBhIdHiXL9f6pRj-o2-UVm46r5QbP2j-tb86";
-		final String encodedCreds = new String(Base64.getEncoder().encode(creds.getBytes()));
-
-		HttpHeaders headers = new HttpHeaders();
-		headers.set("Authorization", "Basic " + encodedCreds);
-		headers.set("Accept", "application/json");
-		headers.set("Content-Type", "application/x-www-form-urlencoded");
-		headers.set("Accept-Language", "en_US");
-
-		HttpEntity<String> httpEntity = new HttpEntity<>("grant_type=client_credentials", headers);
-
-		BearerToken tokenInfo = restTemplate.postForObject("https://api.sandbox.paypal.com/v1/oauth2/token", httpEntity,
-				BearerToken.class);
-
-		final String tokenString = tokenInfo.getAccess_token();
-		System.out.println(">>> Access token aquired: " + tokenString);
-		return tokenString;
-	}
+	
 
 	@PostMapping("/payment")
 	public ResponseEntity<CreatePaymentResult> createPayment(RestTemplate restTemplate) {
@@ -108,12 +89,13 @@ public class PaymentController {
 		if (paymentID == null || paymentID.isEmpty())
 			throw new IllegalArgumentException("paymentID");
 
-		Case c = this.caseRepo.findByPaymentId(paymentID);
+		final Case c = this.caseRepo.findByPaymentId(paymentID);
 
 		if (c == null) {
 			throw new IllegalArgumentException("PaymentId doesn't exists");
 		}
-		if (!c.getState().equals(Case.State.PAYMENT_CREATED)) {
+		if (!c.getState().equals(Case.State.PAYMENT_CREATED) &&
+			 c.getState().equals(Case.State.AUTHORIZE_PAYMENT_INITIATED)) {
 			throw new IllegalStateException("PaymentId " + paymentID + " state is " + c.getState());
 		}
 
@@ -144,6 +126,33 @@ public class PaymentController {
 		System.out.println("Response: " + paymentResult);
 
 		return new ResponseEntity<String>(paymentResult, HttpStatus.CREATED);
+	}
+
+	/**
+	 * Gets new access token.
+	 * 
+	 * @param restTemplate
+	 * @return - bearer access token as string
+	 */
+	private static String getAccessToken(RestTemplate restTemplate) {
+		final String creds = "AYJDB6VRfkdCzRTsQcgSOMlLdHpNdHX2shweNLoxbAKvVaJaxigN8PbROYu12cEnibCqP75uv2Scoien:"
+				+ "EBxEViEGiBijbPHLKpkBoHLnYGeAvLuxSydxFTO3T-G6jBhIdHiXL9f6pRj-o2-UVm46r5QbP2j-tb86";
+		final String encodedCreds = new String(Base64.getEncoder().encode(creds.getBytes()));
+
+		HttpHeaders headers = new HttpHeaders();
+		headers.set("Authorization", "Basic " + encodedCreds);
+		headers.set("Accept", "application/json");
+		headers.set("Content-Type", "application/x-www-form-urlencoded");
+		headers.set("Accept-Language", "en_US");
+
+		HttpEntity<String> httpEntity = new HttpEntity<>("grant_type=client_credentials", headers);
+
+		BearerToken tokenInfo = restTemplate.postForObject("https://api.sandbox.paypal.com/v1/oauth2/token", httpEntity,
+				BearerToken.class);
+
+		final String tokenString = tokenInfo.getAccess_token();
+		System.out.println(">>> Access token aquired: " + tokenString);
+		return tokenString;
 	}
 
 	/**

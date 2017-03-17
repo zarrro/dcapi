@@ -70,19 +70,30 @@ public class AnamnesisController {
 		if (!c.getState().equals(Case.State.PAYMENT_AUTHORIZED)) {
 			throw new IllegalStateException("Case state " + c.getState());
 		}
-		
-		try {
-			System.out.println("######" + surveyJson);
-			storageService.store(image1, c.getId(), "img1_" + image1.getOriginalFilename());
-			storageService.store(image2, c.getId(), "img2_" + image2.getOriginalFilename());		
-			Survey s = new ObjectMapper().readValue(surveyJson, Survey.class);
-			c.setSurvey(s);
-			c.setState(Case.State.READY_FOR_REVIEW);
-		} catch (IOException e) {
-			e.printStackTrace();
-		} finally {
-			this.caseRepo.save(c);
+		if (image1 == null){
+			throw new IllegalArgumentException("image1 is null");
 		}
+		if (image2 == null){
+			throw new IllegalArgumentException("image2 is null");
+		}
+		if (surveyJson == null){
+			throw new IllegalArgumentException("surveyJson is null");
+		}
+		
+		storageService.store(image1, c.getId(), "img1_" + image1.getOriginalFilename());
+		storageService.store(image2, c.getId(), "img2_" + image2.getOriginalFilename());
+		Survey s = null;
+
+		try {
+			s = new ObjectMapper().readValue(surveyJson, Survey.class);
+			System.out.println("######" + surveyJson);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+
+		c.setSurvey(s);
+		c.setState(Case.State.READY_FOR_REVIEW);
+		this.caseRepo.save(c);
 
 		return c.getPaymentId();
 	}
