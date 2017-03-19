@@ -62,6 +62,7 @@ public class BearerToken {
 				+ token_type + ", app_id=" + app_id + ", expires_in=" + expires_in + "]";
 	}
 
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;

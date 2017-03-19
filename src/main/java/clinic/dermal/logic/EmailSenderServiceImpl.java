@@ -33,25 +33,26 @@ public class EmailSenderServiceImpl implements EmailSenderService {
 	@Override
 	public void sendEmailWithAttechment(String from, String to, String subject, String body, boolean htmlContent,
 			File... attachments) {
-		LOG.info("Start sending email with subject: " + subject);
-
-		final Session session =
-				Session.getDefaultInstance(this.smtpConfig.getSessionProperties(), new javax.mail.Authenticator() {
-					@Override
-					protected PasswordAuthentication getPasswordAuthentication() {
-						return new PasswordAuthentication(EmailSenderServiceImpl.this.smtpConfig.getUsername(),
-								EmailSenderServiceImpl.this.smtpConfig.getPassword());
-					}
-				});
+		LOG.info("Start sending email with...");
+		LOG.info("from: {}, to: {}, subject {}, html: {}, body:\n {}", from, to, subject, htmlContent, body);
 
 		try {
+			Session session =
+					Session.getDefaultInstance(this.smtpConfig.getSessionProperties(), new javax.mail.Authenticator() {
+						@Override
+						protected PasswordAuthentication getPasswordAuthentication() {
+							return new PasswordAuthentication(EmailSenderServiceImpl.this.smtpConfig.getUsername(),
+									EmailSenderServiceImpl.this.smtpConfig.getPassword());
+						}
+					});
+
 			MimeMessage message = new MimeMessage(session);
 			message.setFrom(new InternetAddress(from));
 			message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
 			message.setSubject(subject);
 
 			BodyPart messageBodyPart = new MimeBodyPart();
-			
+
 			if (htmlContent) {
 				messageBodyPart.setContent(body, "text/html");
 			} else {

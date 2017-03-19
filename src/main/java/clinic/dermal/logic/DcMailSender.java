@@ -19,15 +19,15 @@ public class DcMailSender {
 	@Autowired
 	private EmailSenderService ess;
 
-	public void sendNewCaseForReview(Case c, File... files) {
+	public void sendNewCaseForReview(Case c) {
 
-		final File[] attachements = files;
+		final File[] attachements = new File[] { c.getImage1(), c.getImage2() };
 		final Case dc = c;
 
 		Runnable sendMailTask = () -> {
 			DcMailSender.this.ess.sendEmailWithAttechment(DcMailSender.this.addr.getNewcasefrom(),
-					DcMailSender.this.addr.getNewcaseto(), dc.getPaymentId(), dc.getSurvey().toString(), false,
-					attachements);
+					DcMailSender.this.addr.getNewcaseto(), dc.getPayerId() + "_" + dc.getPaymentId(),
+					dc.getSurvey().toString(), false, attachements);
 		};
 		executor.submit(sendMailTask);
 	}
