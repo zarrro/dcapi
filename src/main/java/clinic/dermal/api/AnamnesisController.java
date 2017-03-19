@@ -1,5 +1,6 @@
 package clinic.dermal.api;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,6 +24,7 @@ import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBui
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import clinic.dermal.logic.DcMailSender;
 import clinic.dermal.logic.StorageService;
 import clinic.dermal.model.Case;
 import clinic.dermal.model.StorageFileNotFoundException;
@@ -31,13 +33,17 @@ import clinic.dermal.persistence.CaseRepository;
 
 @RestController
 public class AnamnesisController {
-	
+
 	private static final Logger LOG = LoggerFactory.getLogger(AnamnesisController.class);
 
 	@Autowired
 	private StorageService storageService;
+
 	@Autowired
 	private CaseRepository caseRepo;
+
+	@Autowired
+	private DcMailSender mailSender;
 
 	@GetMapping("/anamnesis")
 	public List<String> listUploadedFiles() throws IOException {
@@ -74,20 +80,19 @@ public class AnamnesisController {
 		if (!c.getState().equals(Case.State.PAYMENT_AUTHORIZED)) {
 			throw new IllegalStateException("Case state " + c.getState());
 		}
-		if (image1 == null){
+		if (image1 == null) {
 			throw new IllegalArgumentException("image1 is null");
 		}
-		if (image2 == null){
+		if (image2 == null) {
 			throw new IllegalArgumentException("image2 is null");
 		}
-		if (surveyJson == null){
+		if (surveyJson == null) {
 			throw new IllegalArgumentException("surveyJson is null");
 		}
-		
-		storageService.store(image1, c.getId(), "img1_" + image1.getOriginalFilename());
-		storageService.store(image2, c.getId(), "img2_" + image2.getOriginalFilename());
-		Survey s = null;
 
+		File attachement1 = storageService.store(image1, c.getId(), "img1_" + image1.getOriginalFilename());
+		File attachement2 = storageService.store(image2, c.getId(), "img2_" + image2.getOriginalFilename());
+		Survey s = null;
 		try {
 			s = new ObjectMapper().readValue(surveyJson, Survey.class);
 			LOG.info(surveyJson);
@@ -98,7 +103,7 @@ public class AnamnesisController {
 		c.setSurvey(s);
 		c.setState(Case.State.READY_FOR_REVIEW);
 		this.caseRepo.save(c);
-
+		this.mailSender.sendNewCaseForReview(c, attachement1, attachement2);
 		return c.getPaymentId();
 	}
 

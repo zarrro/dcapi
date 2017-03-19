@@ -18,6 +18,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
@@ -30,6 +31,7 @@ import com.paypal.api.payments.Payment;
 import com.paypal.api.payments.RedirectUrls;
 import com.paypal.api.payments.Transaction;
 
+import clinic.dermal.logic.EmailSenderService;
 import clinic.dermal.model.Case;
 import clinic.dermal.model.PaymentException;
 import clinic.dermal.model.payment.BearerToken;
@@ -55,7 +57,7 @@ public class PaymentController {
 	public RestTemplate restTemplate(RestTemplateBuilder builder) {
 		return builder.build();
 	}
-
+	
 	@PostMapping("/payment")
 	public ResponseEntity<CreatePaymentResult> createPayment(RestTemplate restTemplate) {
 		_accessToken = getAccessToken(restTemplate);

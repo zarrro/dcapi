@@ -1,10 +1,11 @@
 package clinic.dermal.logic;
 
-import org.springframework.core.io.Resource;
-import org.springframework.web.multipart.MultipartFile;
-
+import java.io.File;
 import java.nio.file.Path;
 import java.util.stream.Stream;
+
+import org.springframework.core.io.Resource;
+import org.springframework.web.multipart.MultipartFile;
 
 public interface StorageService {
 
@@ -12,7 +13,7 @@ public interface StorageService {
 
     void store(MultipartFile file, String folder);
     
-    void store(MultipartFile file, String folder, String filename);
+    File store(MultipartFile file, String folder, String filename);
 
     Stream<Path> loadAll();
 
