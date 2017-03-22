@@ -1,10 +1,7 @@
 package clinic.dermal.model;
 
-import org.springframework.data.annotation.Id;
-
 public class Survey {
 
-	@Id
 	private String id;
 	private String itchy;
 	private String hurts;

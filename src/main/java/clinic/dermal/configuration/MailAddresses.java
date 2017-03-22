@@ -7,7 +7,7 @@ import org.springframework.validation.annotation.Validated;
 @Configuration
 @Validated
 @ConfigurationProperties(value = "mail.address")
-public class DermalClinicAddresses {
+public class MailAddresses {
 
 	private String newcasefrom;
 	private String newcaseto;

@@ -10,11 +10,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
-import org.springframework.data.mongodb.core.FindAndModifyOptions;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -31,6 +26,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
 import clinic.dermal.logic.DcMailSender;
+import clinic.dermal.logic.InvoiceCounterService;
 import clinic.dermal.logic.StorageService;
 import clinic.dermal.model.Case;
 import clinic.dermal.model.PaymentException;
@@ -45,7 +41,6 @@ import clinic.dermal.model.payment.Payment;
 import clinic.dermal.model.payment.PaymentExecution;
 import clinic.dermal.model.payment.RedirectUrls;
 import clinic.dermal.model.payment.Transaction;
-import clinic.dermal.persistence.Counter;
 import clinic.dermal.util.JSONFormatter;
 
 @RestController
@@ -56,7 +51,7 @@ public class PaymentController {
 	private String _accessToken;
 
 	@Autowired
-	private MongoTemplate mongoTemplate;
+	private InvoiceCounterService invoiceCounter;
 	
 	@Autowired
 	private RestTemplate restTemplate;
@@ -212,20 +207,6 @@ public class PaymentController {
 		return tokenString;
 	}
 
-	/**
-	 * @return next invoice ID, six digits padded with leading zeroes.
-	 */
-	private String getNextInvoiceId() {
-		Query query = new Query(Criteria.where("_id").is("invoiceSeq"));
-		Update update = new Update().inc("seq", 1);
-		Counter c = mongoTemplate.findAndModify(query, update, new FindAndModifyOptions().returnNew(true).upsert(true),
-				Counter.class);
-
-		String invoiceId = String.format("%06d", c.getSeq());
-		LOG.info("getNextInvoiceId result:" + c.getSeq());
-		return invoiceId;
-	}
-
 	private Payment createPaymentEntity() {
 		Payment paymentRequest = new Payment();
 		paymentRequest.setIntent("sale");
@@ -255,7 +236,7 @@ public class PaymentController {
 		itemList.setItems(Arrays.asList(new Item[] { item }));
 		tran.setItemList(itemList);
 		tran.setDescription("Dermatoligist fee for review of dermal issue");
-		tran.setInvoiceNumber(getNextInvoiceId());
+		tran.setInvoiceNumber(this.invoiceCounter.getNextInvoiceId());
 		tran.setCustom("Dermal.Clinic worldwide trust");
 
 		paymentRequest.setTransactions(Arrays.asList(new Transaction[] { tran }));

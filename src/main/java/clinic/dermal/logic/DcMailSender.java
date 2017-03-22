@@ -6,7 +6,7 @@ import java.util.concurrent.Executors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import clinic.dermal.configuration.DermalClinicAddresses;
+import clinic.dermal.configuration.MailAddresses;
 import clinic.dermal.model.Case;
 
 public class DcMailSender {
@@ -14,7 +14,7 @@ public class DcMailSender {
 	private final ExecutorService executor = Executors.newCachedThreadPool();
 
 	@Autowired
-	private DermalClinicAddresses addr;
+	private MailAddresses addr;
 
 	@Autowired
 	private EmailSenderService ess;
