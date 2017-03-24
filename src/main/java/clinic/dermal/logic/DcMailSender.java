@@ -6,7 +6,8 @@ import java.util.concurrent.Executors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import clinic.dermal.configuration.MailAddresses;
+import clinic.dermal.configuration.ConfirmationMailProperties;
+import clinic.dermal.configuration.NewCaseMailProperties;
 import clinic.dermal.model.Case;
 
 public class DcMailSender {
@@ -14,21 +15,27 @@ public class DcMailSender {
 	private final ExecutorService executor = Executors.newCachedThreadPool();
 
 	@Autowired
-	private MailAddresses addr;
+	private EmailSenderService senderService;
 
 	@Autowired
-	private EmailSenderService ess;
+	private NewCaseMailProperties newCaseMail;
+
+	@Autowired
+	private ConfirmationMailProperties confirmationMail;
 
 	public void sendNewCaseForReview(Case c) {
+		newCaseMail.setSubject(newCaseMail.getSubject() + " " + c.getPaymentId());
+		newCaseMail.setBody(c.toString());
+		newCaseMail.setAttachements(new File[] { c.getImage1(), c.getImage2() });
 
-		final File[] attachements = new File[] { c.getImage1(), c.getImage2() };
-		final Case dc = c;
+		confirmationMail.setTo(c.getSurvey().getEmail());
 
+		DcMailSender mail = DcMailSender.this;
 		Runnable sendMailTask = () -> {
-			DcMailSender.this.ess.sendEmailWithAttechment(DcMailSender.this.addr.getNewcasefrom(),
-					DcMailSender.this.addr.getNewcaseto(), dc.getPayerId() + "_" + dc.getPaymentId(),
-					dc.getSurvey().toString(), false, attachements);
+			mail.senderService.sendEmail(newCaseMail);
+			mail.senderService.sendEmail(confirmationMail);
 		};
+
 		executor.submit(sendMailTask);
 	}
 }

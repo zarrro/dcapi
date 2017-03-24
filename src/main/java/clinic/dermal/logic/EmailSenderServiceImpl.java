@@ -21,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import clinic.dermal.configuration.MailProperties;
 import clinic.dermal.configuration.SmtpConnectionProperties;
 
 public class EmailSenderServiceImpl implements EmailSenderService {
@@ -31,10 +32,10 @@ public class EmailSenderServiceImpl implements EmailSenderService {
 	private final Logger LOG = LoggerFactory.getLogger(EmailSenderService.class);
 
 	@Override
-	public void sendEmailWithAttechment(String from, String to, String subject, String body, boolean htmlContent,
-			File... attachments) {
+	public void sendEmail(MailProperties mail) {
 		LOG.info("Start sending email with...");
-		LOG.info("from: {}, to: {}, subject {}, html: {}, body:\n {}", from, to, subject, htmlContent, body);
+
+		LOG.info(mail.toString());
 
 		try {
 			Session session =
@@ -47,41 +48,46 @@ public class EmailSenderServiceImpl implements EmailSenderService {
 					});
 
 			MimeMessage message = new MimeMessage(session);
-			message.setFrom(new InternetAddress(from));
-			message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
-			message.setSubject(subject);
+			message.setFrom(new InternetAddress(mail.getFrom()));
+			message.addRecipient(Message.RecipientType.TO, new InternetAddress(mail.getTo()));
+			message.setSubject(mail.getSubject());
 
-			BodyPart messageBodyPart = new MimeBodyPart();
+			if (mail.getAttachements() != null && mail.getAttachements().length > 0) {
+				BodyPart messageBodyPart = new MimeBodyPart();
 
-			if (htmlContent) {
-				messageBodyPart.setContent(body, "text/html");
-			} else {
-				messageBodyPart.setText(body);
-			}
-			Multipart multipart = new MimeMultipart();
+				if (mail.isHtmlContent()) {
+					messageBodyPart.setContent(mail.getBody(), "text/html");
+				} else {
+					messageBodyPart.setText(mail.getBody());
+				}
+				Multipart multipart = new MimeMultipart();
 
-			// Set text message part
-			multipart.addBodyPart(messageBodyPart);
-
-			// Part two is attachment
-			for (File f : attachments) {
-				messageBodyPart = new MimeBodyPart();
-				DataSource source = new FileDataSource(f);
-				messageBodyPart.setDataHandler(new DataHandler(source));
-				messageBodyPart.setFileName(f.getName());
+				// Set text message part
 				multipart.addBodyPart(messageBodyPart);
+
+				// Part two is attachment
+				for (File f : mail.getAttachements()) {
+					messageBodyPart = new MimeBodyPart();
+					DataSource source = new FileDataSource(f);
+					messageBodyPart.setDataHandler(new DataHandler(source));
+					messageBodyPart.setFileName(f.getName());
+					multipart.addBodyPart(messageBodyPart);
+				}
+				message.setContent(multipart);
+			} else {
+				// no attachements, no need of multipart body
+				if (mail.isHtmlContent()) {
+					message.setContent(mail.getBody(), "text/html");
+				} else {
+					message.setText(mail.getBody());
+				}
 			}
-			message.setContent(multipart);
+			
 			Transport.send(message);
 			LOG.info("Sent email successfully....");
 		} catch (MessagingException e) {
 			LOG.error("Error sending email...", e);
 			throw new RuntimeException(e);
 		}
-	}
-
-	@Override
-	public void sendEmail(String from, String to, String subject, String body, boolean htmlContent) {
-		throw new RuntimeException("not implemented");
 	}
 }
