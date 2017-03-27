@@ -1,0 +1,35 @@
+---
+- hosts: localhost
+  vars:
+    checkout_path: /home/zaro/dcapi
+  remote_user: zaro
+  tasks:
+  - name: checkout latest dcapi
+    git:
+      repo: git@github.com:zarrro/dcapi.git
+      dest: "{{ checkout_path }}"
+  - name: package dcapi
+    command: mvn clean && mvn package chdir={{checkout_path}}
+
+- hosts: aws-dc
+  remote_user: zaro
+  vars:
+    dist_path: /home/zaro/dcapi/target
+    backend_jar: svc-0.0.1-SNAPSHOT.jar
+    backend_img_upload_dir: upload-dir
+    dcapi_workdir: /home/ubuntu
+    tmp_dir: /tmp
+  tasks:
+  - name: upload prod arhive to aws-dc host temp dir
+    copy:
+       src: "{{ dist_path }}/{{ backend_jar }}"
+       dest: "{{ tmp_dir }}"
+  - name: kill any java processes
+    command: pkill -c java
+  - name: copy backend jar from tmp to the workdir
+    command: "cp {{ tmp_dir }}/{{backend_jar }} {{dcapi_workdir}}"
+  - name: cleanup the upload-dir
+    command: "rm -rf {{dcapi_workdir}}/{{backend_img_upload_dir}} && mkdir {{dcapi_workdir}}/{{backend_img_upload_dir}}"
+  - name: start the backend process
+    command: "java -jar {{ backend_jar }}"
+   
