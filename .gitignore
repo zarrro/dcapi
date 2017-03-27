@@ -1,4 +1,5 @@
 /target/**
+/target/
 /upload-dir/
 dc.log
 src/main/resources/application.properties
